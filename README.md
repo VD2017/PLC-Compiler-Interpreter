@@ -5,12 +5,15 @@
 python3 NTD.py <nfa_file.nfa>
 
 NOTE: nfa_file.nfa is a txt file that contains a Non-finite Automata formatted like this:
-start <start_state> \n
-final <final_state,...more_final_states> \n
-trans <from_state>:<symbol>:<to_state> \n
+start <start_state> 
+
+final <final_state,...more_final_states> 
+
+trans <from_state>:<symbol>:<to_state> 
 .
 .
 .
+
 trans ...
 
 see n1.nfa as example
