@@ -1,0 +1,198 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> dfa
+Rule 1     dfa -> start final transitions
+Rule 2     start -> START NAME
+Rule 3     final -> FINAL names
+Rule 4     names -> <empty>
+Rule 5     names -> names NAME
+Rule 6     transitions -> <empty>
+Rule 7     transitions -> transitions transition
+Rule 8     transition -> TRANS NAME COLON NAME COLON NAME
+Rule 9     transition -> TRANS NAME COLON COLON NAME
+
+Terminals, with rules where they appear
+
+COLON                : 8 8 9 9
+FINAL                : 3
+NAME                 : 2 5 8 8 8 9 9
+START                : 2
+TRANS                : 8 9
+error                : 
+
+Nonterminals, with rules where they appear
+
+dfa                  : 0
+final                : 1
+names                : 3 5
+start                : 1
+transition           : 7
+transitions          : 1 7
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . dfa
+    (1) dfa -> . start final transitions
+    (2) start -> . START NAME
+
+    START           shift and go to state 3
+
+    dfa                            shift and go to state 1
+    start                          shift and go to state 2
+
+state 1
+
+    (0) S' -> dfa .
+
+
+
+state 2
+
+    (1) dfa -> start . final transitions
+    (3) final -> . FINAL names
+
+    FINAL           shift and go to state 5
+
+    final                          shift and go to state 4
+
+state 3
+
+    (2) start -> START . NAME
+
+    NAME            shift and go to state 6
+
+
+state 4
+
+    (1) dfa -> start final . transitions
+    (6) transitions -> .
+    (7) transitions -> . transitions transition
+
+    TRANS           reduce using rule 6 (transitions -> .)
+    $end            reduce using rule 6 (transitions -> .)
+
+    transitions                    shift and go to state 7
+
+state 5
+
+    (3) final -> FINAL . names
+    (4) names -> .
+    (5) names -> . names NAME
+
+    NAME            reduce using rule 4 (names -> .)
+    TRANS           reduce using rule 4 (names -> .)
+    $end            reduce using rule 4 (names -> .)
+
+    names                          shift and go to state 8
+
+state 6
+
+    (2) start -> START NAME .
+
+    FINAL           reduce using rule 2 (start -> START NAME .)
+
+
+state 7
+
+    (1) dfa -> start final transitions .
+    (7) transitions -> transitions . transition
+    (8) transition -> . TRANS NAME COLON NAME COLON NAME
+    (9) transition -> . TRANS NAME COLON COLON NAME
+
+    $end            reduce using rule 1 (dfa -> start final transitions .)
+    TRANS           shift and go to state 10
+
+    transition                     shift and go to state 9
+
+state 8
+
+    (3) final -> FINAL names .
+    (5) names -> names . NAME
+
+    TRANS           reduce using rule 3 (final -> FINAL names .)
+    $end            reduce using rule 3 (final -> FINAL names .)
+    NAME            shift and go to state 11
+
+
+state 9
+
+    (7) transitions -> transitions transition .
+
+    TRANS           reduce using rule 7 (transitions -> transitions transition .)
+    $end            reduce using rule 7 (transitions -> transitions transition .)
+
+
+state 10
+
+    (8) transition -> TRANS . NAME COLON NAME COLON NAME
+    (9) transition -> TRANS . NAME COLON COLON NAME
+
+    NAME            shift and go to state 12
+
+
+state 11
+
+    (5) names -> names NAME .
+
+    NAME            reduce using rule 5 (names -> names NAME .)
+    TRANS           reduce using rule 5 (names -> names NAME .)
+    $end            reduce using rule 5 (names -> names NAME .)
+
+
+state 12
+
+    (8) transition -> TRANS NAME . COLON NAME COLON NAME
+    (9) transition -> TRANS NAME . COLON COLON NAME
+
+    COLON           shift and go to state 13
+
+
+state 13
+
+    (8) transition -> TRANS NAME COLON . NAME COLON NAME
+    (9) transition -> TRANS NAME COLON . COLON NAME
+
+    NAME            shift and go to state 14
+    COLON           shift and go to state 15
+
+
+state 14
+
+    (8) transition -> TRANS NAME COLON NAME . COLON NAME
+
+    COLON           shift and go to state 16
+
+
+state 15
+
+    (9) transition -> TRANS NAME COLON COLON . NAME
+
+    NAME            shift and go to state 17
+
+
+state 16
+
+    (8) transition -> TRANS NAME COLON NAME COLON . NAME
+
+    NAME            shift and go to state 18
+
+
+state 17
+
+    (9) transition -> TRANS NAME COLON COLON NAME .
+
+    TRANS           reduce using rule 9 (transition -> TRANS NAME COLON COLON NAME .)
+    $end            reduce using rule 9 (transition -> TRANS NAME COLON COLON NAME .)
+
+
+state 18
+
+    (8) transition -> TRANS NAME COLON NAME COLON NAME .
+
+    TRANS           reduce using rule 8 (transition -> TRANS NAME COLON NAME COLON NAME .)
+    $end            reduce using rule 8 (transition -> TRANS NAME COLON NAME COLON NAME .)
+

@@ -1,0 +1,14 @@
+DFA.obj __str__ method: Debug print:
+start [p0] 
+final [[p0,q0,q1,q4],[p0,q0,q1],[p0,q0,q2,q3],[p0,q0,q2],[p0]] 
+trans [p0]:b:[p0,q0,q2]
+trans [p0]:a:[p0,q0,q1]
+trans [p0,q0,q2]:b:[p0,q0,q2]
+trans [p0,q0,q2]:a:[p0,q0,q1,q4]
+trans [p0,q0,q1]:b:[p0,q0,q2,q3]
+trans [p0,q0,q1]:a:[p0,q0,q1]
+trans [p0,q0,q1,q4]:b:[p0,q0,q2,q3]
+trans [p0,q0,q1,q4]:a:[p0,q0,q1,q4]
+trans [p0,q0,q2,q3]:b:[p0,q0,q2,q3]
+trans [p0,q0,q2,q3]:a:[p0,q0,q1,q4]
+
