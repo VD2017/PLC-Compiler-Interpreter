@@ -1,0 +1,12 @@
+Unreachable Code Detection
+Objective: Identify unreachable code in a function scope, particularly code that follows an early exit (like return, break, or continue statements) and would never be executed.
+
+Logic:
+
+Visitor (UnreachableCodeVisitor): Traverses the AST and tracks early exit nodes within each function scope:
+Uses a stack to keep track of the current function scope, so we know where an early exit occurs.
+Whenever a return, break, or continue statement is encountered, any subsequent statements in the same function scope are marked as potentially unreachable.
+Checker (UnreachableCodeChecker): Takes the nodes identified as unreachable by UnreachableCodeVisitor and stores them as violations:
+Each violation contains details about the scope (e.g., function name) and the line number of the unreachable code.
+This ensures that any dead code following an early exit is flagged for review.
+Result: The UnreachableCodeChecker outputs a list of unreachable code violations, with each entry specifying the function scope and line number.
