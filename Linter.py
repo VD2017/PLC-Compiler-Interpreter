@@ -1,18 +1,19 @@
 import ast
-class violation:
-    # *An instance of a violation within in a set of a linting checker/rule class
-    node: ast.AST 
-    string: str
-    linting_rule : str
-    violation_num : int
-    pass
+# class violation:
+#     # *An instance of a violation within in a set of a linting checker/rule class
+#     node: ast.AST 
+#     string: str
+#     linting_rule : str
+#     violation_num : int
+#     pass
 
-    def __str__(self):
-        # string = 
-        pass
+#     def __str__(self):
+#         # string = 
+#         pass
 
 class Linter:
-    def __init__(self):
+    def __init__(self,ast_tree:ast.AST):
+        self.ast_tree = ast_tree
         self.violations = {} #Store violations in a dictionary of each respective checker
 
         # {<linting_rule_1>: set(),
@@ -21,7 +22,7 @@ class Linter:
         # }
 
     
-    def run_all_linting_rule(self):
+    def run_all_linting_rule_non_threaded(self):
         pass
 
     def __str__(self):

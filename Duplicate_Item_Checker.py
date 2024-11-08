@@ -1,24 +1,48 @@
 import ast
 import inspect
 import Sample_Cases.LinterCases as LC
+from collections import deque
 
 class VariableNameChecker(ast.NodeVisitor):
     # For visiting Nodes where variables are defined
     def __init__(self):
+        self.program_scope_stack = deque() #Can be used for parent tracing
         self.var_nodes = []
+
+    # Reset scope when visiting python module
+    def visit_Module(self, node):
+        self.program_scope_stack.append(node)
+        self.var_nodes = []
+        self.generic_visit(node)
+        self.program_scope_stack.pop()
+
+    # Reset scope when visiting class definition
+    def visit_ClassDef(self, node):
+        self.program_scope_stack.append(node)
+        self.var_nodes = []
+        self.generic_visit(node)
+        self.program_scope_stack.pop()
+
+    # Reset scope when visiting Function definition
+    def visit_FunctionDef(self, node):
+        self.program_scope_stack.append(node)
+        self.var_nodes = []
+        self.generic_visit(node)
+        self.program_scope_stack.pop()
 
     # Define what happens when ast.NodeVisitor visits a Assign node
     def visit_Assign(self, node):
+
+
         # Visit Target where variables are assigned
         
-        if node.__class__.__name__ == "Assign":
-            # print(node)
-            for target in node.targets:
-                # Check if the given node is an instance of variable name is being assigned
-                if isinstance(target, ast.Name):
-                    # Append node obj to var_nodes
-                    self.var_nodes.append(node)
-            
+        # if node.__class__.__name__ == "Assign":
+        for target in node.targets:
+            # Check if the given node is an instance of variable name is being assigned
+            if isinstance(target, ast.Name):
+                # Append node obj to var_nodes
+                self.var_nodes.append(node)
+        # print(node)
         self.generic_visit(node)
 
         
@@ -76,18 +100,28 @@ class DuplicateVarChecker():
 
             
 
-    def run_check(self):
+    def run_check(self, ast_tree:ast.AST):
+        
+        # Init Variable Name checker
+        # print("Scanning for Var assignments")
+        my_var_scanner = VariableNameChecker()
+        my_var_scanner.visit(ast_tree)
+        print(my_var_scanner.var_nodes)
+
+        # Import variables
+        self.import_vars_from_visitor(my_var_scanner.var_nodes)
+
+        # Create sets for intersection
         set_of_names = set(self.vars_dict.keys())
         set_of_values = set(self.vars_dict.values())
-        
+
         # set self.if_has_duplicate flag based on a set intersection 
         # if there exists atleast one duplicate
-        if len(set.intersection(set_of_names, set_of_values)) > 0:
-            # Note/potential bug: should probably update this to be left-most intersection(var names) 
+        where_set = set.intersection(set_of_names, set_of_values)
+        if where_set:
             # to intersection only variables names! 
             self.if_has_duplicate = True # Set flag
-            where_set = set.intersection(set_of_names, set_of_values) # Store what duplicates are being referenced in a set
-            
+             # Store what duplicates are being referenced in a set
         else:
             return print(f"{self.__class__.__name__}:No violations detected!")
         
@@ -100,16 +134,18 @@ class DuplicateVarChecker():
             for name, value in self.vars_dict.items():
                 if value in where_set: 
                     self.violations.add(f"Duplicate at {name} = {value}")
-            print("All violations:\n",self.violations)
+            # print("All violations:\n",self.violations)
 
 
 
 
         
 
-    def store_violation(self):
-        
-        pass
+    def __str__(self):
+        string = f"{self.__class__.__name__} All Violations:\n"
+        for violation in self.violations:
+            string += violation +"\n"
+        return string
     
 
 class Linter(VariableNameChecker, DuplicateVarChecker):
@@ -117,27 +153,28 @@ class Linter(VariableNameChecker, DuplicateVarChecker):
     pass
 
 def main():
-    # Currently Using example where  
+    # Currently Using example where there are duplicate variables
     string = inspect.getsource(LC.duplicate_variables)
 
     ast_tree = ast.parse(string)
     
 
-
     print("ast tree:\n", ast.dump(ast_tree,indent= 4))
-    # Scan for var assignmens
-    print("Scanning for Var assignments")
+    # Scan for var assignments
+    
     # Init Var checker 
-    my_var_scanner = VariableNameChecker()
-    my_var_scanner.visit_Assign(ast_tree)
-    my_var_scanner.print_vars()
-
+    # my_var_scanner = VariableNameChecker()
+    # my_var_scanner.visit(ast_tree)
+    # my_var_scanner.print_vars()
+    
 
     # Init and Run DuplicateChecker
     my_duplicate_checker = DuplicateVarChecker()
-    my_duplicate_checker.import_vars_from_visitor(my_var_scanner.var_nodes)
+    # my_duplicate_checker.import_vars_from_visitor(my_var_scanner.var_nodes)
     print(my_duplicate_checker.vars_dict)
-    my_duplicate_checker.run_check()
+    my_duplicate_checker.run_check(ast_tree)
+
+    print(my_duplicate_checker)
 
 if __name__ == '__main__':
     main()

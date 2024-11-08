@@ -33,10 +33,11 @@ def divide_by_constant(a):
     return a / 0  # Linter should flag this as division by zero
 
 
-# Test 6: Uninitialized variables
-def calculate_sum():
-    total += 10  # total is used before being initialized
-    return total
+# # Test 6: Uninitialized variables
+# Omitted as of 11/5/24, might be picked up by parser
+# def calculate_sum():
+#     total += 10  # total is used before being initialized
+#     return total
 
 
 # Test 7: Infinite loop warning
