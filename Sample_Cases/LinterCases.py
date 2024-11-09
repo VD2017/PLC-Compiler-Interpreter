@@ -45,6 +45,7 @@ def infinite_loop():
     i = 0
     while i >= 0:  # This is likely to run forever
         i -= 1
+        
 
 # Test 9: Unreachable code
 def check_unreachable_code():
