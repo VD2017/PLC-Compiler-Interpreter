@@ -28,7 +28,8 @@ class WhileLoopScanner(ast.NodeVisitor):
         
         # Temp Variables
         self.current_loop = None
-        self.vars_set = [] # Can be a tuple. Formatted like this: [(<var_id>, <var_value>, <current_while_loop_node>)]
+        # self.vars_set = [] #[(<var_id>, <var_value>, <current_while_loop_node>)]
+        self.vars_set = {} #{<var_id>: [(<var_value>, <current_while_loop_node>),..], <var_id>:...}
         
 
         # Flags
@@ -38,8 +39,9 @@ class WhileLoopScanner(ast.NodeVisitor):
 
         # search parameters when while_loop
         self.solution_table
-
         self.search_params = None
+        self.report_loops = set() #For reporting loops that give trouble
+        
 
 
 
@@ -47,17 +49,32 @@ class WhileLoopScanner(ast.NodeVisitor):
     # def var_search():
     #     pass
 
+    def add_var(self, node:ast.Name, value, current_loop):
+        '''
+        Adds var to self.vars_set
+        '''
+
+        if node.id in self.vars_set:
+            self.vars_set[node.id].append((value, current_loop))
+        else:
+            # self.vars_set[node.id] = [(value, current_loop)]
+            self.vars_set.update({node.id: [(value,current_loop)]})
+
+    def return_last_var_assign(self,id):
+        '''
+        
+        '''
     def read_value(self, node: ast.AST):
         '''
         returns value of a node
-        
         '''
         # Returns value of based if ast.Constant or ast.Name node
         if isinstance(node, ast.Constant):
             return node.value
         elif isinstance(node, ast.Name) and type(node.ctx)==ast.Load:
-            print(node.id)
-            print(self.vars_set)
+            pass
+            # print(node.id)
+            # print(self.vars_set)
             # print([x[0] for x in self.vars_set])
             # Recursively search value
             # if node.id in [x[0] for x in self.vars_set]:
@@ -72,7 +89,9 @@ class WhileLoopScanner(ast.NodeVisitor):
 
 
     def visit_Compare(self, node:ast.Compare):
-        
+        # if :
+
+
         return node.left.id, type(node.ops[0])
     
     def visit_Call(self, node:ast.Call):
@@ -93,7 +112,7 @@ class WhileLoopScanner(ast.NodeVisitor):
         self.if_in_function = True
 
         #reset variables everytime we enter new scope
-        self.vars_set = []
+        self.vars_set = {}
         # print(self.program_scope_stack)
         
         self.generic_visit(node)
@@ -126,17 +145,21 @@ class WhileLoopScanner(ast.NodeVisitor):
         
         # Check the test attribute of while block and define search parameters
         if isinstance(node.test, ast.Compare):
-            print(node.test)
+            self.search_params = self.visit_Compare(node.test)
             # self.solution_table[self.visit_Compare(node.test)[1]]
         elif isinstance(node.test, (ast.Constant,ast.Name)):
             # As of now Assume it's only constant^^^^, think about Name later on!!
-            print(self.read_value(node.test))
+            # print(self.read_value(node.test))
+
+            if not self.read_value(node.test): #In the case constant == False
+                self.if_infinite_loop = False
+
             
-        print(node.body)
+        
         for item in node.body:
             print("visiting body item", item)
             self.visit(item)
-        
+        print(self.vars_set)
         
         
         # print(self.vars_set)
@@ -147,13 +170,18 @@ class WhileLoopScanner(ast.NodeVisitor):
             
         # print(self.program_scope_stack)
         
-
+        # If the flag is still set, append loop to 
+        if self.if_infinite_loop and self.current_loop not in self.report_loops:
+            self.report_loops.add(self.current_loop)
         # End of processing node here, start revisiting from last node of while loop body
+
         self.generic_visit(node.body[-1])
         # If exiting to outer nested loop
-        if self.while_loop_stack:
+        if len(self.while_loop_stack)> 1:
             # print(f"exiting loop: {self.current_loop}")
-            self.current_loop = self.while_loop_stack.pop()
+            self.while_loop_stack.pop()
+            
+            self.current_loop = self.while_loop_stack[-1]
         # If no more nested loop set current_loop to None
         else:
             self.current_loop = None
@@ -165,6 +193,14 @@ class WhileLoopScanner(ast.NodeVisitor):
     
     # While in while-loop enforce these at visit time
 
+    def visit_BinOp(self, node):
+        print(self.current_loop)
+        if self.current_loop:
+            if self.current_loop == self.while_loop_stack[-1]:
+                pass
+        
+        self.generic_visit(node)
+
     def visit_Break(self, node):
         
         # Note: what to do if encountered nested while loops??
@@ -173,11 +209,25 @@ class WhileLoopScanner(ast.NodeVisitor):
         
         self.generic_visit(node)
         
-    def visit_Expr(self, node):
+            
         
-        if self.current_loop:
-            pass
-        self.generic_visit(node)
+        
+        
+        
+        
+    # def visit_Expr(self, node):
+        
+    #     if self.current_loop:
+    #         pass
+    #     self.generic_visit(node)
+
+    # def visit_Pass(self, node):
+    #     # Note: what to do if encountered nested while loops??
+    #     if self.current_loop and len(self.while_loop_stack) == 1:
+    #         self.if_infinite_loop = False
+        
+    #     self.generic_visit(node)
+        
 
     def visit_Return(self, node):
         
@@ -200,9 +250,6 @@ class WhileLoopScanner(ast.NodeVisitor):
     
     
             
-            
-
-
     def visit_Assign(self, node: ast.Assign):
         # print(ast.dump(node, indent=4))
         target: ast.Name
@@ -211,7 +258,9 @@ class WhileLoopScanner(ast.NodeVisitor):
             if isinstance(target, ast.Name) and type(target.ctx)== ast.Store:
                 # Append node obj to var_nodes
                 # Can be a tuple. Formatted like this: (<var_id>, <var_value>, <current_while_loop_node>)
-                self.vars_set.append((target.id, node.value,self.current_loop))
+                value = self.read_value(node.value)
+                self.add_var(target, value, self.current_loop)
+                # self.vars_set.append((target.id, value,self.current_loop))
         self.generic_visit(node)
 
     # def visit_Compare(self, node):
@@ -239,15 +288,21 @@ class InfiniteWhileLoopChecker():
 def main():
     
     string = inspect.getsource(LC.infinite_loop)
-    ast_tree = ast.parse(string
-# '''
-# # i = True
-# # while True:
-# #     # break
-# #     # i = False
-# #     print(i)
+    ast_tree = ast.parse(
+        # string
+'''
+i = True
+while True:
+    # break
+    i = False
+    print(i)
+    x = 10
 
-# '''
+y = 5
+
+z = x + y
+
+'''
     )
     print("ast tree:\n", ast.dump(ast_tree,indent= 4))
 

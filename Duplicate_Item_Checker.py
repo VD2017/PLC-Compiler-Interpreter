@@ -84,21 +84,34 @@ class DuplicateVarChecker():
         '''
         node : ast.Assign
         
-        for node in vars_nodes:
+        # for node in vars_nodes:
             
+        #     name = node.targets[0].id
+        #     self.vars_dict.update({name: None})
+        #     # Currently accounting for variable names and ints/constants
+        #     # if the binding is to a another variable name
+        #     if type(node.value) == ast.Name:
+        #         self.vars_dict[name] = node.value.id
+
+        #     # if the binding is a constant/int
+        #     else:
+        #         # out_string += str(var_node.value.value)
+        #         self.vars_dict[name] = node.value.value
+        for node in vars_nodes:
             name = node.targets[0].id
             self.vars_dict.update({name: None})
-            # Currently accounting for variable names and ints/constants
-            # if the binding is to a another variable name
-            if type(node.value) == ast.Name:
-                self.vars_dict[name] = node.value.id
-
-            # if the binding is a constant/int
-            else:
-                # out_string += str(var_node.value.value)
-                self.vars_dict[name] = node.value.value
-
             
+            # Handle different types of assignment values
+            if isinstance(node.value, ast.Name):  # Variable assignment
+                self.vars_dict[name] = node.value.id
+            elif isinstance(node.value, ast.Constant):  # Constant assignment
+                self.vars_dict[name] = node.value.value
+            elif isinstance(node.value, ast.BinOp):  # Binary Operation
+                # Store a placeholder or simplified representation for binary operations
+                self.vars_dict[name] = "Binary Operation"
+            else:
+                self.vars_dict[name] = "Other Expression"
+                
 
     def run_check(self, ast_tree:ast.AST):
         
@@ -138,9 +151,6 @@ class DuplicateVarChecker():
 
 
 
-
-        
-
     def __str__(self):
         string = f"{self.__class__.__name__} All Violations:\n"
         for violation in self.violations:
@@ -156,7 +166,16 @@ def main():
     # Currently Using example where there are duplicate variables
     string = inspect.getsource(LC.duplicate_variables)
 
-    ast_tree = ast.parse(string)
+    ast_tree = ast.parse(
+        # string
+'''
+x = 10
+
+y = 5
+
+z = x + y
+'''
+    )
     
 
     print("ast tree:\n", ast.dump(ast_tree,indent= 4))

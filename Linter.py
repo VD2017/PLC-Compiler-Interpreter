@@ -1,4 +1,6 @@
 import ast
+
+
 # class violation:
 #     # *An instance of a violation within in a set of a linting checker/rule class
 #     node: ast.AST 
