@@ -119,7 +119,7 @@ class DuplicateVarChecker():
         # print("Scanning for Var assignments")
         my_var_scanner = VariableNameChecker()
         my_var_scanner.visit(ast_tree)
-        print(my_var_scanner.var_nodes)
+        # print(my_var_scanner.var_nodes)
 
         # Import variables
         self.import_vars_from_visitor(my_var_scanner.var_nodes)
@@ -141,8 +141,8 @@ class DuplicateVarChecker():
         
         # If the flag is set store and print a violation
         if self.if_has_duplicate:
-            print(f"{self.__class__.__name__}: Has a violation!")
-            print("Storing violation(s)")
+            # print(f"{self.__class__.__name__}: Has a violation!")
+            # print("Storing violation(s)")
             
             # Probably could optimize this; (T: O(n))
             for name, value in self.vars_dict.items():

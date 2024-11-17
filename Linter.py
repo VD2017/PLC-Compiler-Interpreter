@@ -2,13 +2,16 @@
 # Important packages/libraries
 import ast
 from Checkers_Modules import *
+import concurrent.futures
 
 # Sample Cases
 from Sample_Cases import LinterCases as LC
+from Sample_Cases import ChatGPT_binary_search, Claude_binary_search
 
 
 class Linter:
     def __init__(self,ast_tree:ast.AST):
+
         self.ast_tree = ast_tree
         self.main_violations_set = {} #Store violations in a dictionary of each respective checker
 
@@ -19,7 +22,7 @@ class Linter:
 
     
 
-    def run_all_linting_rule_non_threaded(self):
+    def lint_all_non_threaded(self):
         # Store checkers objs in list for later reference
         checker_objs = []
         
@@ -33,20 +36,41 @@ class Linter:
 
         # Init and Run checkers
         div_checker = Divison_By_Zero_Checker.DivisionByZeroChecker()
-        div_checker.run_check(self.ast_tree)
         checker_objs.append(div_checker)
+        div_checker.run_check(self.ast_tree)
         
-
         dupe_checker = Duplicate_Item_Checker.DuplicateVarChecker()
-        dupe_checker.run_check(self.ast_tree)
         checker_objs.append(dupe_checker)
+        dupe_checker.run_check(self.ast_tree)
 
-        # Moving violations to main violations
+        # Moving violations from checkers to main violations
         checker_obj: object
         
         for checker_obj in checker_objs:
             self.main_violations_set[checker_obj.__class__.__name__] = checker_obj.violations
-        pass
+
+    def lint_all_multithreaded(self):
+        
+        checker_objs = []
+
+         # Init and Run checkers
+        div_checker = Divison_By_Zero_Checker.DivisionByZeroChecker()
+        checker_objs.append(div_checker)
+        
+        dupe_checker = Duplicate_Item_Checker.DuplicateVarChecker()
+        checker_objs.append(dupe_checker)
+
+        with concurrent.futures.ThreadPoolExecutor(len(checker_objs)) as executor:
+            for checker in checker_objs:
+                executor.submit(checker.run_check, self.ast_tree)
+            
+
+        # Moving violations from checkers to main violations
+        checker_obj: object
+        
+        for checker_obj in checker_objs:
+            self.main_violations_set[checker_obj.__class__.__name__] = checker_obj.violations
+        
 
     def __str__(self):
         '''
@@ -70,10 +94,11 @@ class Linter:
 
 def main():
     
-    string = inspect.getsource(LC.divide_by_constant)
+    string = inspect.getsource(LC)
     ast_tree = ast.parse(string)
     mylinter = Linter(ast_tree=ast_tree)
-    mylinter.run_all_linting_rule_non_threaded()
+    # mylinter.lint_all_non_threaded()
+    mylinter.lint_all_multithreaded()
     print(mylinter)
     pass
 
