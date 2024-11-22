@@ -1,0 +1,53 @@
+TEST CASE
+code = """
+def exampleFunction():
+    x = 5
+    if x > 10:
+        return x
+        print("Unreachable")  # Unreachable code
+    camelCaseVar = 20  # Not snake_case
+    y = 10  # Unused variable
+"""
+
+
+Running Non-Threaded Linter:
+All violations:
+	DivisionByZeroChecker:
+	Detected: 0
+		NO VIOLATIONS
+	DuplicateVarChecker:
+	Detected: 0
+		NO VIOLATIONS
+	NameConventionChecker:
+	Detected: 2
+		Violation: 'camelCaseVar' is in camelCase, expected snake_case.
+		Violation: 'exampleFunction' is in camelCase, expected snake_case.
+	UnreachableCodeChecker:
+	Detected: 1
+		Unreachable code detected in 'exampleFunction' at line 6.
+	VariableNameChecker:
+	Detected: 2
+		Variable 'y' is assigned but never used.
+		Variable 'camelCaseVar' is assigned but never used.
+
+
+Running Multi-Threaded Linter:
+All violations:
+	DivisionByZeroChecker:
+	Detected: 0
+		NO VIOLATIONS
+	DuplicateVarChecker:
+	Detected: 0
+		NO VIOLATIONS
+	NameConventionChecker:
+	Detected: 2
+		Violation: 'camelCaseVar' is in camelCase, expected snake_case.
+		Violation: 'exampleFunction' is in camelCase, expected snake_case.
+	UnreachableCodeChecker:
+	Detected: 1
+		Unreachable code detected in 'exampleFunction' at line 6.
+	VariableNameChecker:
+	Detected: 2
+		Variable 'y' is assigned but never used.
+		Variable 'camelCaseVar' is assigned but never used.
+

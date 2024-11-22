@@ -1,0 +1,84 @@
+Existing Codebase
+The codebase already included some groundwork:
+Basic AST Parsing: Code to parse functions and traverse the AST was partially in place.
+Variable Assignment Tracking: A framework for detecting variable assignments was already set up with VariableNameChecker, but it only partially handled different types of expressions.
+Duplicate Item Checker: Functionality to detect duplicate variable names assigned the same value existed, but it didn’t address unused variables.
+
+Refactoring and Enhancements
+Refactoring:
+I refactored the existing VariableNameChecker to make it more modular and capable of handling different types of assignments, such as constants, binary operations, and function calls.
+I created methods within VariableNameChecker to print assignment values and handle complex expressions, which are essential for understanding assignments in more detail.
+Enhancements:
+Added an UnusedVarChecker class, which checks the difference between assigned and used variables. This class identifies variables assigned but never used, achieving our main objective.
+Unified the functionality with a main Linter class, which combines VariableNameChecker and UnusedVarChecker to run both assignment and usage checks in one analysis step.
+Enhanced print_vars() to handle different AST node types (e.g., BinOp, Call, and UnaryOp), allowing for a complete and readable output of complex assignments.
+
+How it Works:
+1. Import Statements
+import ast: This module provides the ast (Abstract Syntax Tree) functionality, allowing us to parse and analyze Python code at the syntax level.
+import inspect: This module enables access to the source code of functions defined within the environment, which we use to retrieve code for testing.
+2. VariableNameChecker Class
+Purpose: This class visits each node in the AST and identifies variable assignments and usages.
+Key Components:
+__init__():
+
+Initializes self.var_nodes to store assignment nodes, self.assigned_vars to store assigned variable names, and self.used_vars to store names of used variables in the code.
+visit_Assign(self, node):
+
+Visits each Assign node (representing an assignment, e.g., x = 5).
+For each target of the assignment (left side of =), it checks if it’s a variable (ast.Name) and stores it in self.assigned_vars while adding the full assignment node to self.var_nodes.
+self.generic_visit(node) ensures traversal of any nested nodes.
+visit_Name(self, node):
+
+Visits each Name node (representing a variable name).
+If the node is being "loaded" (ctx=ast.Load), meaning it’s read rather than assigned, it adds the variable to self.used_vars.
+print_vars(self):
+
+This method prints out each variable assignment with its assigned value. It checks the type of each assignment’s value and prints it in readable form:
+Constants (e.g., x = 10).
+Variable Names (e.g., x = y).
+Binary Operations (e.g., x = a + b), handled by get_binop_string.
+Function Calls (e.g., x = len(arr)), handled by get_call_string.
+Unary Operations (e.g., x = -y), handled by get_unaryop_string.
+These helper methods (get_binop_string, get_call_string, get_unaryop_string) generate readable strings for complex expressions, making it clear what each assignment does.
+
+3. UnusedVarChecker Class
+Purpose: This class checks for any variables that were assigned but never used.
+Key Components:
+__init__():
+
+Initializes self.unused_vars as an empty set to store any detected unused variables.
+find_unused_vars(self, assigned_vars, used_vars):
+
+Takes assigned_vars and used_vars as input, representing all assigned and used variable names collected by VariableNameChecker.
+Computes self.unused_vars as the difference between assigned_vars and used_vars, identifying any assigned variables that were not used.
+If self.unused_vars is not empty, it prints each unused variable; otherwise, it reports that no unused variables were found.
+4. Linter Class
+Purpose: This class combines VariableNameChecker and UnusedVarChecker functionalities to act as a single, cohesive linter.
+Key Components:
+__init__():
+Initializes both VariableNameChecker and UnusedVarChecker by calling their __init__ methods, preparing the linter to track variable assignments, usages, and any unused variables.
+5. binary_search Function
+Purpose: This is a test function that performs binary search on a sorted array.
+Code:
+Assigns and uses several variables (low, high, mid), some with complex expressions.
+This function helps test the linter’s ability to correctly identify all assigned variables and determine whether any are unused.
+6. main() Function
+Purpose: Coordinates the entire linter workflow by parsing, analyzing, and printing results for binary_search.
+Key Components:
+Retrieve Source Code:
+
+Uses inspect.getsource(binary_search) to retrieve the raw source code for binary_search, which is then parsed into an AST with ast.parse(source_code).
+Print AST Structure (Optional):
+
+ast.dump(ast_tree, indent=4) provides a detailed structure of the AST, showing all nodes and their relationships.
+Initialize and Run the Linter:
+
+Initializes the Linter instance, which visits each node in the AST, collecting assigned_vars and used_vars.
+Calls print_vars() to display each variable’s assignment and value, which provides a clear view of how variables are assigned in the function.
+Detect Unused Variables:
+
+find_unused_vars() compares assigned_vars and used_vars to find unused variables, then prints them if any are detected.
+7. Output and Explanation
+Variable Assignments: Displays assignments such as low = 0 and high = len(arr) - 1, with complex expressions handled by helper functions to ensure readability.
+Unused Variable Report: If any variable is assigned but not used, the UnusedVarChecker reports it, helping developers identify unnecessary code.

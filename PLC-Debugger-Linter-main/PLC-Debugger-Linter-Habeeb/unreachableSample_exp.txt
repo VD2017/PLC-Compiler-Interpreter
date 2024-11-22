@@ -1,0 +1,40 @@
+Logic:
+
+Visitor (UnreachableCodeVisitor)
+Traverses the AST and identifies early exit nodes within each function, loop, or conditional scope. It evaluates reachability for each statement and ensures proper handling of nested blocks:
+
+Scope Tracking:
+
+Uses a stack to keep track of the current scope (e.g., function name), ensuring that each unreachable node is associated with the correct context.
+Resets reachability for new functions and loops.
+Reachability Flag:
+
+Maintains a reachable flag to determine whether the current code can be executed:
+When encountering return, break, or continue, the flag is set to False, marking subsequent statements in the same block as unreachable.
+The flag is reset for new scopes, loops, or conditionals.
+Handling Conditional Blocks:
+
+Visits each branch of if statements (body and orelse) independently to evaluate reachability for both branches accurately.
+Handling Loops:
+
+Ensures that continue only affects subsequent code within the same loop iteration.
+Ensures that break only affects the remainder of the loop, not unrelated code.
+Unreachable Code Recording:
+
+If a node (e.g., Assign, Expr) is encountered while reachable is False, it is flagged as unreachable and stored with its scope and line number.
+Checker (UnreachableCodeChecker)
+Takes the nodes identified as unreachable by UnreachableCodeVisitor and compiles them into a list of violations:
+
+Violation Details:
+
+Each violation includes the name of the scope (e.g., function name) and the line number of the unreachable code.
+Example: "Violation: Unreachable code detected in 'exampleFunction' at line 5."
+Aggregated Reporting:
+
+Collects all violations and outputs them as a summary, allowing developers to review unreachable code across multiple functions or blocks.
+Result:
+The UnreachableCodeChecker outputs a list of unreachable code violations, with each entry specifying:
+
+The scope (e.g., function or block name).
+The line number of the unreachable code.
+Ensures that only truly unreachable code is flagged, avoiding over-flagging of valid statements.
