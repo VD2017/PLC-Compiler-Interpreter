@@ -9,14 +9,8 @@ A modular Python Linter designed to enforce coding standards, detect potential r
 ## Table of Contents
 - [Features](#features)
 - [Architecture](#architecture)
-- [Usage](#usage)
-- [Installation](#installation)
 - [Linting Rules](#linting-rules)
 - [Multi-Threading](#multi-threading)
-- [Code Examples](#code-examples)
-- [Contributing](#contributing)
-- [License](#license)
-
 ---
 
 ## Features
@@ -43,6 +37,18 @@ The Python Linter is designed around modular checkers. Each checker class inheri
    - `VariableNameChecker`: Detects unused variables.
 3. **Thread Pooling**: Utilizes Python’s `concurrent.futures.ThreadPoolExecutor` for concurrent rule checking.
 4. **Violation Reporting**: Aggregates all violations into a structured and human-readable report.
+
+# Code Examples
+
+## Example 1: Division by Zero
+This example tests the `DivisionByZeroChecker`. The linter should detect the division by zero error.
+
+### Code:
+```python
+def divide_numbers():
+    a = 10
+    b = 0
+    result = a / b  # Detected as Division by Zero
 
 ---
 
