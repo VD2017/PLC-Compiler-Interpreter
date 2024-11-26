@@ -1,9 +1,16 @@
 import ast
 import re
 
-class NameConventionChecker:
+if __name__ == "__main__":
+    from Base_Checker import checker_base
+
+else:
+    from .Base_Checker import checker_base
+    
+class NameConventionChecker(checker_base):
     def __init__(self):
-        self.violations = set()  # Store violations in a set
+        # self.violations = set()  # Store violations in a set
+        super().__init__()
 
     def run_check(self, ast_tree: ast.AST):
         """

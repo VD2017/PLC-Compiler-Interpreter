@@ -2,6 +2,12 @@ import ast
 import inspect
 import Sample_Cases.LinterCases as LC
 
+if __name__ == "__main__":
+    from Base_Checker import checker_base
+
+else:
+    from .Base_Checker import checker_base
+
 class DivisionOperatorChecker(ast.NodeVisitor):
     # Visits instances of the division operator being used
     def __init__(self):
@@ -34,9 +40,9 @@ class DivisionOperatorChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-class DivisionByZeroChecker():
+class DivisionByZeroChecker(checker_base):
     def __init__(self):
-        self.violations = set()
+        super().__init__()
         self.if_has_div_by_zero = False #Flag
         self.binary_operator_nodes = []
 
@@ -48,10 +54,10 @@ class DivisionByZeroChecker():
         '''
         self.binary_operator_nodes = self.binary_operator_nodes + nodes
 
-    def run_check(self,input_tree):
+    def run_check(self, ast_tree:ast.AST):
         # Run visit
         my_scanner = DivisionOperatorChecker()
-        my_scanner.visit(input_tree)
+        my_scanner.visit(ast_tree)
 
         # Import the nodes
         self.import_vars_from_visitor(my_scanner.div_nodes)
@@ -63,7 +69,7 @@ class DivisionByZeroChecker():
             if is_Constant:
                 if node.right.value == 0:
                     self.if_has_div_by_zero = True
-                    self.violations.add(f"Division by Zero at {node.left.id} / 0")
+                    self.violations.add(f"Division by Zero at {node.left.id} / 0 at line {node.lineno}")
         # Print all current violations
         # print(self)
 

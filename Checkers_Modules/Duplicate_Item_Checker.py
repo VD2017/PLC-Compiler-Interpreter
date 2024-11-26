@@ -2,6 +2,11 @@ import ast
 import inspect
 import Sample_Cases.LinterCases as LC
 from collections import deque
+if __name__ == "__main__":
+    from Base_Checker import checker_base
+
+else:
+    from .Base_Checker import checker_base
 
 class VariableNameChecker(ast.NodeVisitor):
     # For visiting Nodes where variables are defined
@@ -68,16 +73,19 @@ class VariableNameChecker(ast.NodeVisitor):
 
 
 
-class DuplicateVarChecker(): 
+class DuplicateVarChecker(checker_base): 
     
     def __init__(self):
         # store violations in a set
-        self.violations = set()
+
+        # self.violations = set()
+        super().__init__()
         self.if_has_duplicate = False #Flag if there is atleast one violation from running the check
         self.vars_dict = {}
 
     def import_vars_from_visitor(self,vars_nodes: list[ast.Assign]):
         '''
+        Imports the variables from the visitor obj
         Params:
         vars_nodes: this is where you want to import the assignment nodes 
         from your VariableNameChecker instance

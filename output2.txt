@@ -1,0 +1,41 @@
+
+
+Running Non-Threaded Linter:
+All violations:
+	DivisionByZeroChecker:
+	Detected: 1
+		Division by Zero at a / 0
+	DuplicateVarChecker:
+	Detected: 1
+		Duplicate at y = x
+	NameConventionChecker:
+	Detected: 1
+		Violation: 'AddNumbers' does not follow snake_case or camelCase.
+	UnreachableCodeChecker:
+	Detected: 1
+		Unreachable code detected in 'check_unreachable_code' at line 53.
+	VariableNameChecker:
+	Detected: 2
+		Variable 'y' is assigned but never used.
+		Variable 'unused_variable' is assigned but never used.
+
+
+Running Multi-Threaded Linter:
+All violations:
+	DivisionByZeroChecker:
+	Detected: 1
+		Division by Zero at a / 0
+	DuplicateVarChecker:
+	Detected: 1
+		Duplicate at y = x
+	NameConventionChecker:
+	Detected: 1
+		Violation: 'AddNumbers' does not follow snake_case or camelCase.
+	UnreachableCodeChecker:
+	Detected: 1
+		Unreachable code detected in 'check_unreachable_code' at line 53.
+	VariableNameChecker:
+	Detected: 2
+		Variable 'y' is assigned but never used.
+		Variable 'unused_variable' is assigned but never used.
+

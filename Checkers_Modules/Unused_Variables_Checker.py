@@ -1,8 +1,14 @@
 import ast
+if __name__ == "__main__":
+    from Base_Checker import checker_base
 
-class VariableNameChecker:
+else:
+    from .Base_Checker import checker_base
+    
+class VariableNameChecker(checker_base):
     def __init__(self):
-        self.violations = set()  # Standardized violations attribute as a set
+        # self.violations = set()  # Standardized violations attribute as a set
+        super().__init__()
 
     def run_check(self, ast_tree: ast.AST):
         """

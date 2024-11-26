@@ -1,9 +1,17 @@
 import ast
 
-class UnreachableCodeChecker:
+if __name__ == "__main__":
+    from Base_Checker import checker_base
+
+else:
+    from .Base_Checker import checker_base
+
+
+class UnreachableCodeChecker(checker_base):
     def __init__(self):
         # Initializes a set to store violations of unreachable code
-        self.violations = set()
+        # self.violations = set()
+        super().__init__()
 
     def run_check(self, ast_tree: ast.AST):
         # Define a nested visitor class to traverse the AST
@@ -30,12 +38,14 @@ class UnreachableCodeChecker:
                     else:
                         # Visit the statement if reachable
                         self.visit(stmt)
-
+            
+            
             def visit_FunctionDef(self, node):
                 # Handle function definitions by updating the scope stack
                 self.scope_stack.append(node.name)
                 self.reachable = True  # Reset reachability for the function body
-                self.process_body(node.body)
+                self.process_body(node.body[:-1])
+                self.generic_visit(node.body[-1])
                 self.scope_stack.pop()
 
             def visit_Return(self, node):
@@ -67,6 +77,11 @@ class UnreachableCodeChecker:
                 self.reachable = current_reachable
                 self.process_body(node.orelse)
                 else_reachable = self.reachable
+                # if len(node.orelse) > 0 and isinstance(node.orelse[0], ast.If):
+                #     print("Detected")
+                #     self.visit_If(node.orelse[0])
+                # else:
+                #     self.process_body(node.orelse)
 
                 # After the if-else block, reachable if either branch is reachable
                 self.reachable = if_reachable or else_reachable
@@ -108,6 +123,7 @@ class UnreachableCodeChecker:
         return string
 
 def main():
+    from Base_Checker import checker_base
     # Define test cases as tuples of name and code snippet
     test_cases = [
         ("Test Case 1", """
