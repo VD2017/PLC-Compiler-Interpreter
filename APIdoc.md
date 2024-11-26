@@ -9,8 +9,11 @@ A modular Python Linter designed to enforce coding standards, detect potential r
 ## Table of Contents
 - [Features](#features)
 - [Architecture](#architecture)
+- [Design](#design)
 - [Linting Rules](#linting-rules)
 - [Multi-Threading](#multi-threading)
+
+
 ---
 
 ## Features
@@ -38,23 +41,93 @@ The Python Linter is designed around modular checkers. Each checker class inheri
 3. **Thread Pooling**: Utilizes Python’s `concurrent.futures.ThreadPoolExecutor` for concurrent rule checking.
 4. **Violation Reporting**: Aggregates all violations into a structured and human-readable report.
 
-# Code Examples
+---
 
-## Example 1: Division by Zero
-This example tests the `DivisionByZeroChecker`. The linter should detect the division by zero error.
+## Design
 
-### Code:
-```python
-def divide_numbers():
-    a = 10
-    b = 0
-    result = a / b  # Detected as Division by Zero
+### AST Tree
+The Python Linter leverages Python's native `ast` module to parse the source code into an Abstract Syntax Tree (AST). This approach allows:
+- **Efficient Static Analysis**: Analyze code without executing it, ensuring safety and performance.
+- **Extensibility**: The modular AST traversal supports adding custom rules easily.
+
+### Methods
+#### Self-Contained Linters
+- Each linting rule is encapsulated in its own class.
+- **Standardized Interfaces**:
+  - Each linter extends the base class `checker_base`.
+  - Violations are stored in a standardized `violations` set.
+- **Independence**:
+  - Each linter operates independently, enabling easier maintenance and extension.
+
+#### Thread-Safe and Non-Thread-Safe Checks
+- **Non-Threaded Execution**: Runs checkers sequentially for simplicity and smaller codebases.
+- **Threaded Execution**: Executes multiple checkers concurrently to optimize performance for larger codebases.
+
+### Consolidation
+- **Centralized Main Linter**: Coordinates initialization and execution of all checkers.
+- **Unified Violation Report**: Aggregates violations from all checkers into a centralized dictionary.
+- **Queue System**: Uses a thread-safe queue to collect and manage violations in multi-threaded mode.
 
 ---
 
-## Usage
+## Linting Rules
+The Python Linter enforces the following coding standards:
 
-### Running the Linter
-Run the linter on a Python file:
-```bash
-python linter.py <file_to_lint.py>
+### 1. Division by Zero
+Detects divisions where the divisor is zero, preventing runtime errors.
+- **Example Violation**:
+    ```python
+    result = a / 0  # Detected
+    ```
+
+### 2. Duplicate Variables
+Flags variables assigned identical values.
+- **Example Violation**:
+    ```python
+    x = 10
+    y = x
+    z = x  # Detected as a duplicate
+    ```
+
+### 3. Naming Conventions
+Enforces Python's recommended `snake_case` for functions and variables.
+- **Example Violation**:
+    ```python
+    def ExampleFunction():  # Detected
+        pass
+    ```
+
+### 4. Unreachable Code
+Identifies code that will never execute after an early exit like `return`, `break`, or `continue`.
+- **Example Violation**:
+    ```python
+    def example():
+        return
+        print("This will not run")  # Detected
+    ```
+
+### 5. Unused Variables
+Flags variables that are declared but never used.
+- **Example Violation**:
+    ```python
+    x = 10  # Detected as unused
+    ```
+
+---
+
+## Multi-Threading
+The linter supports both non-threaded and multi-threaded execution modes.
+
+### Implementation
+1. **Thread Pool Execution**:
+   - Python’s `concurrent.futures.ThreadPoolExecutor` is used for thread management.
+   - Each checker runs in its own thread, allowing simultaneous execution.
+
+2. **Event-Based Synchronization**:
+   - Threads use event flags for communication, ensuring thread-safe operation and synchronization.
+
+3. **Queue-Based Writing**:
+   - A queue collects violations from different threads.
+   - Violations are written to the main results dictionary in a thread-safe manner.
+
+
