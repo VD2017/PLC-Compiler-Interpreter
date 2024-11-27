@@ -128,7 +128,7 @@ The linter supports both non-threaded and multi-threaded execution modes.
    - Threads use event flags for communication, ensuring thread-safe operation and synchronization.
 
 3. **Queue-Based Writing**:
-   - A queue collects violations from different threads.
+   - A queue collects checker objects from finished threads.
    - Violations are written to the main results dictionary in a thread-safe manner.
 
 
