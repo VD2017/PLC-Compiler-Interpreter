@@ -60,8 +60,9 @@ The Python Linter leverages Python's native `ast` module to parse the source cod
   - Each linter operates independently, enabling easier maintenance and extension.
 
 #### Thread-Safe and Non-Thread-Safe Checks
-- **Non-Threaded Execution**: Runs checkers sequentially for simplicity and smaller codebases.
-- **Threaded Execution**: Executes multiple checkers concurrently to optimize performance for larger codebases.
+- Demonstration purposes
+- **Non-Threaded Execution**: Runs checkers sequentially.
+- **Threaded Execution**: Executes multiple checkers concurrently to optimize performance.
 
 ### Consolidation
 - **Centralized Main Linter**: Coordinates initialization and execution of all checkers.
