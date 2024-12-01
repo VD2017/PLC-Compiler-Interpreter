@@ -37,10 +37,12 @@ class DivisionOperatorChecker(ast.NodeVisitor):
         self.generic_visit(node)
         self.program_scope_stack.pop()
 
+    # For checking variables that are used as 0 divisor
     def visit_Assign(self, node):
         for target in node.targets:
-            if isinstance(node.value, ast.Constant):
+            if isinstance(node.value, ast.Constant) and isinstance(target, ast.Name):
                 self.var_assignments[target.id] = node.value.value
+                
         self.generic_visit(node)
 
     def visit_BinOp(self, node):
@@ -112,6 +114,8 @@ class DivisionByZeroChecker(checker_base):
 def main():
     # Currently Using example where the right operand is a constant of 0
     string = '''
+a = [1, 2, 3]
+b[0]
 def divide_numbers(a, b):
     if b == 0:
         return "Cannot divide by zero!"
