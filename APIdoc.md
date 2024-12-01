@@ -8,6 +8,7 @@ A modular Python Linter designed to enforce coding standards, detect potential r
 
 ## Table of Contents
 - [Features](#features)
+- [How to Run](#how-to-run)
 - [Architecture](#architecture)
 - [Design](#design)
 - [Linting Rules](#linting-rules)
@@ -26,7 +27,12 @@ A modular Python Linter designed to enforce coding standards, detect potential r
 - **Threaded Execution**: Supports multi-threaded linting for faster analysis of large codebases.
 
 ---
+##How To Run
+- #From Main Linter Program:
+- 1. In the directory of the project open up terminal:
+- 2. Run **python3.10 Linter.py <python_file_here>**
 
+---
 ## Architecture
 The Python Linter is designed around modular checkers. Each checker class inherits from a base class `checker_base`, ensuring consistent interfaces and ease of extensibility.
 
