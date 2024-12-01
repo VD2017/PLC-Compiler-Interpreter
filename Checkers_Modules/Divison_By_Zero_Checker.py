@@ -1,6 +1,7 @@
 import ast
 import inspect
-import Sample_Cases.LinterCases as LC
+from collections import deque
+# import Sample_Cases.LinterCases.py as LC
 
 if __name__ == "__main__":
     from Base_Checker import checker_base
@@ -12,31 +13,51 @@ class DivisionOperatorChecker(ast.NodeVisitor):
     # Visits instances of the division operator being used
     def __init__(self):
         self.div_nodes = []
+        # For most recent assignment of variables
+        self.var_assignments = {}
+        self.program_scope_stack = deque()
 
     # def visit_Module(self, node):
     #     # To reset scope when entering a python Module
     #     self.div_nodes = []
     #     self.generic_visit(node)
 
-    # def visit_FunctionDef(self,node):
-    #     # To reset scope when entering a FunctionDef
-    #     # Note Should make more stable for nested functions in python modules
-    #     # print("entered Function definition")
-    #     self.div_nodes = []
-    #     self.generic_visit(node)
-        
+
+    # Reset scope when visiting class definition
+    def visit_ClassDef(self, node):
+        self.program_scope_stack.append(node)
+        self.var_assignments = {}
+        self.generic_visit(node)
+        self.program_scope_stack.pop()
+
+    # Reset scope when entering function
+    def visit_FunctionDef(self, node):
+        self.program_scope_stack.append(node)
+        self.var_assignments = {}
+        self.generic_visit(node)
+        self.program_scope_stack.pop()
+
+    def visit_Assign(self, node):
+        for target in node.targets:
+            if isinstance(node.value, ast.Constant):
+                self.var_assignments[target.id] = node.value.value
+        self.generic_visit(node)
+
     def visit_BinOp(self, node):
         
         # Check if that instance is div operation and the right operand is a constant
         if type(node.op) == ast.Div:
             # Check if the right constant is 0
             is_Constant = type(node.right) == ast.Constant
-            if is_Constant:
+            if isinstance(node.right, ast.Constant):
                 if node.right.value == 0:
                     self.div_nodes.append(node)
             # Consider check for id of var name
-            else:
-                pass
+            elif isinstance(node.right, ast.Name):
+                # If variable is not assigned in a func body assume it's a unbound arg
+                if node.right.id in self.var_assignments and self.var_assignments[node.right.id] == 0:
+                    self.div_nodes.append(node)
+
         self.generic_visit(node)
 
 
@@ -45,6 +66,7 @@ class DivisionByZeroChecker(checker_base):
         super().__init__()
         self.if_has_div_by_zero = False #Flag
         self.binary_operator_nodes = []
+        self.assign_nodes = set()
 
     def import_vars_from_visitor(self,nodes: list[ast.BinOp]):
         '''
@@ -65,11 +87,17 @@ class DivisionByZeroChecker(checker_base):
         node: ast.BinOp
         for node in self.binary_operator_nodes:
             # print(node)
-            is_Constant = type(node.right) == ast.Constant
-            if is_Constant:
-                if node.right.value == 0:
-                    self.if_has_div_by_zero = True
-                    self.violations.add(f"Division by Zero at {node.left.id} / 0 at line {node.lineno}")
+            # is_Constant = type(node.right) == ast.Constant
+            self.if_has_div_by_zero = True
+            self.violations.add(f"Division by Zero at {node.left.id} / 0 at line {node.lineno}")
+
+            # if isinstance(node.right, ast.Constant):
+            #     if node.right.value == 0:
+            #         self.if_has_div_by_zero = True
+            #         self.violations.add(f"Division by Zero at {node.left.id} / 0 at line {node.lineno}")
+            # elif isinstance(node.right, ast.Name):
+            #     get_name = node.right.id
+
         # Print all current violations
         # print(self)
 
@@ -83,7 +111,13 @@ class DivisionByZeroChecker(checker_base):
 
 def main():
     # Currently Using example where the right operand is a constant of 0
-    string = inspect.getsource(LC.divide_by_constant)
+    string = '''
+def divide_numbers(a, b):
+    if b == 0:
+        return "Cannot divide by zero!"
+    return a / b
+
+    '''
     # This function divides by 0
 
     ast_tree = ast.parse(string)
@@ -92,7 +126,7 @@ def main():
 
     print("ast tree:\n", ast.dump(ast_tree,indent= 4))
     # Scan for var assignmens
-    print("Scanning for Var assignments")
+    # print("Scanning for Var assignments")
     # Init Var checker 
 
     # print(type(ast_tree))
@@ -112,6 +146,7 @@ def main():
     # my_checker.import_vars_from_visitor(ast_tree)
     # print(my_checker.binary_operator_nodes)
     my_checker.run_check(ast_tree)
+    print(my_checker)
     
 
 if __name__ == '__main__':
