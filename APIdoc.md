@@ -28,8 +28,8 @@ A modular Python Linter designed to enforce coding standards, detect potential r
 
 ---
 ## How To Run
-- # From Main Linter Program:
-- 1. In the directory of the project open up terminal:
+- ### From Main Linter Program:
+- 1. In the directory of the project, open up terminal:
 - 2. Run **python3.10 Linter.py <python_file_here>**
 
 ---
