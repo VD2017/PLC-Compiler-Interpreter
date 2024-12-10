@@ -31,7 +31,7 @@ A modular Python Linter designed to enforce coding standards, detect potential r
 ### From Main Linter Program:
 1. Open up terminal and go to directory of project files.
 2. Run `python Linter.py <python_file_here>`
-3. Result will be non-multi-threaded and multi-threaded exexcution.
+3. Result will be non-multi-threaded and multi-threaded execution.
 
 ---
 ## Architecture
